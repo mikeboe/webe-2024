@@ -1,0 +1,81 @@
+@page "/users/{id}"
+@rendermode InteractiveServer
+
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Services;
+@using Microsoft.AspNetCore.Http.Extensions
+@inherits OwningComponentBase<UserService>
+@inject NavigationManager NavigationManager
+
+<PageTitle>User @userName</PageTitle>
+<h1>User @userName</h1>
+
+@if (!editing)
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between">
+                <h3>Details</h3>
+                <button class="btn btn-primary" @onclick="() => editing = true">Edit</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <p>User Name: @userName</p>
+            <p>Email: @email</p>
+        </div>
+    </div>
+}
+else
+{
+    <div class="card">
+        <div class="card-header">
+            <div class="d-flex justify-content-between">
+            <h3>Edit Details</h3>
+            <button class="btn btn-success" @onclick=@(() => UpdateUser())>Save</button>
+            </div>
+        </div>
+        <div class="card-body">
+            <div class="flex-row mb-2">
+                <div>User Name</div>
+                <input type="text" @bind-value="@userName" @bind-value:event="oninput" />
+            </div>
+            <div class="flex-row mb-2">
+                <div>Email</div>
+                <input type="text" @bind-value="@email" @bind-value:event="oninput" />
+            </div>
+        </div>
+    </div>
+}
+
+@code {
+    [Parameter]
+    public string id { get; set; }
+    
+    public string userName;
+    public string email;
+
+    public bool editing = false;
+    
+    protected override void OnInitialized()
+    {
+        UserClass user = Service.GetUserById(id);
+        userName = user.userName;
+        email = user.email;
+    }
+
+    public void UpdateUser()
+    {
+        UserClass user = new UserClass();
+        user.id = id;
+        user.userName = userName;
+        user.email = email;
+        
+        var success = Service.UpdateRecord(user);
+        if (success)
+        {
+            editing = false;
+        }
+        
+
+    }
+}

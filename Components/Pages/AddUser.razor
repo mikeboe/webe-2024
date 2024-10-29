@@ -1,0 +1,51 @@
+@page "/adduser"
+@rendermode InteractiveServer
+
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Services;
+@using Microsoft.AspNetCore.Http.Extensions
+@inherits OwningComponentBase<UserService>
+@inject NavigationManager NavigationManager
+
+<PageTitle>Add User</PageTitle>
+<h1>Add User</h1>
+
+<p>Add a new user</p>
+
+<input type="text" placeholder="Enter User Name" @bind-value="@userName" @bind-value:event="oninput"/>
+<p>@userName</p>
+<input type="text" placeholder="Enter email" @bind-value="@email" @bind-value:event="oninput" />
+<p>@email</p>
+
+<button class="btn btn-primary" @onclick=addNewUser >
+    Add User
+</button>
+
+<p>@worked</p>
+
+@code {
+    private string userName;
+    private string email;
+
+    private string worked;
+    
+    
+    private void addNewUser()
+    {
+        UserClass user = new UserClass();
+        
+        user.userName = userName;
+        user.email = email;
+        // Add user to database
+        var success = Service.InsertRecord(user);
+        if (success)
+        {
+            worked = "User added successfully";
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            worked = "User not added";
+        }
+    }
+}

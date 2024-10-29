@@ -1,0 +1,52 @@
+﻿@page "/"
+@rendermode InteractiveServer
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Services;
+@inherits OwningComponentBase<UserService>
+
+<PageTitle>Home</PageTitle>
+
+<h1>Hello, world!</h1>
+
+Welcome to your new app.
+
+<div style="text-align: center;">
+    <h3>CRUD Operations, in PSQL</h3>
+    <a href="/adduser">
+    <button class="btn btn-success">
+        Add user
+    </button>
+    </a>
+    <hr />
+    <table class="table">
+        <tr>
+            <th>User Id</th>
+            <th>UserName</th>
+            <th>Email</th>
+            <th>Actions</th>
+        </tr>
+        @foreach (var item in uclist)
+        {
+            <tr>
+                <td><a href="/users/@item.id">View</a></td>
+                <td>@item.userName</td>
+                <td>@item.email</td>
+                <td><button class="btn btn-danger" @onclick=@(() => RemoveUser(item.id))>Remove</button></td>
+            </tr>
+        }
+    </table>
+    @code{
+        IList<UserClass> uclist;
+
+        protected override void OnInitialized()
+        {
+            uclist = Service.GetUsers();
+        }
+        
+        private void RemoveUser(string id)
+        {
+            Service.DeleteRecord(id);
+            //uclist = Service.GetUsers();
+        }
+}
+</div>

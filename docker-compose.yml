@@ -1,0 +1,6 @@
+﻿services:
+  blazorappcrud:
+    image: blazorappcrud
+    build:
+      context: .
+      dockerfile: Dockerfile
