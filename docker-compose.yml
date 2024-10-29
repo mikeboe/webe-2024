@@ -4,3 +4,20 @@
     build:
       context: .
       dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+      - "8081:8081"
+      
+  postgres-db:
+    image: postgres:15.5
+    container_name: postgres-db
+    restart: always
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_DB: blazor
+      POSTGRES_PASSWORD: postgres
+      PGDATA: /var/lib/postgresql/data/pgdata
