@@ -52,4 +52,4 @@ jobs:
         env:
           KUBE_CONFIG: ${{ secrets.K8S1_KUBE_CONFIG }}
         with:
-          args: set image deployment/webe-2024 webe-2024=ghcr.io/mikeboe/webe-2024:${{ steps.release.outputs.date }} -n webe-2024
+          args: set image deployment/webe-2024 webe-2024=ghcr.io/mikeboe/webe-2024:${{ steps.release.outputs.date }} -n webe-24
