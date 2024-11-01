@@ -1,8 +1,12 @@
 ﻿@page "/"
 @rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
 @using BlazorAppCrud.Data;
+@using BlazorAppCrud.Models.Entities
 @using BlazorAppCrud.Services;
 @inherits OwningComponentBase<UserService>
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "User,Admin")]
 
 <PageTitle>Home</PageTitle>
 
@@ -12,30 +16,59 @@ Welcome to your new app.
 
 <div style="text-align: center;">
     <h3>CRUD Operations, in PSQL</h3>
-    <a href="/adduser">
-    <button class="btn btn-success">
+    <p>Click on the user name to view details </p>
+    <button class="btn btn-success" @onclick="@(() =>NavigationManager.NavigateTo("/adduser"))">
         Add user
     </button>
-    </a>
+    <AuthorizeView>
+        <NotAuthorized>
+            <button class="btn btn-outline-secondary" @onclick="@(() =>NavigationManager.NavigateTo("/login"))">
+                login
+            </button>
+        </NotAuthorized>
+        <Authorized>
+            <span>Logged in as @context.User.Identity.Name</span>
+        </Authorized>
+    </AuthorizeView>
     <hr />
-    <table class="table">
-        <tr>
-            <th>User Id</th>
-            <th>UserName</th>
-            <th>Email</th>
-            <th>Actions</th>
-        </tr>
-        @foreach (var item in uclist)
-        {
-            <tr>
-                <td><a href="/users/@item.id">View</a></td>
-                <td>@item.userName</td>
-                <td>@item.email</td>
-                <td><button class="btn btn-danger" @onclick=@(() => RemoveUser(item.id))>Remove</button></td>
-            </tr>
-        }
-    </table>
+    <AuthorizeView Roles="User,Admin">
+        <Authorized>
+            <table class="table">
+                <tr>
+                    <th>User Id</th>
+                    <th>UserName</th>
+                    <th>Email</th>
+                    <th>Role</th>
+                    <th>Actions</th>
+                </tr>
+                @foreach (var item in uclist)
+                {
+                <tr>
+                    <td><a href="/users/@item.Id">View</a></td>
+                    <td>@item.UserName</td>
+                    <td>@item.Email</td>
+                    <td>@item.Role</td>
+                    <td>
+                        @if (context.User.IsInRole("Admin"))
+                        {
+                            <button class="btn btn-outline-danger" @onclick=@(() => RemoveUser(item.Id))>Remove</button>
+                        } else
+                        {
+                            <button class="btn btn-outline-danger" disabled>Remove</button>
+                        }
+                    </td>
+                </tr>
+                }
+            </table>
+        </Authorized>
+    </AuthorizeView>
+       
+    
     @code{
+       
+        [CascadingParameter]
+        private Task<AuthenticationState> authenticationState { get; set; }
+
         IList<UserClass> uclist;
 
         protected override void OnInitialized()
@@ -46,7 +79,7 @@ Welcome to your new app.
         private void RemoveUser(string id)
         {
             Service.DeleteRecord(id);
-            //uclist = Service.GetUsers();
+            uclist = Service.GetUsers();
         }
 }
 </div>

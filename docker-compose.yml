@@ -1,9 +1,15 @@
-﻿services:
+﻿volumes:
+  postgres_data:
+    driver: local
+
+services:
   blazorappcrud:
     image: blazorappcrud
     build:
       context: .
       dockerfile: Dockerfile
+    environment:
+      DB_URL: Server=192.168.188.20;Port=5433;Database=blazor;User Id=postgres;Password=postgres;
     ports:
       - "8080:8080"
       - "8081:8081"
@@ -13,7 +19,7 @@
     container_name: postgres-db
     restart: always
     ports:
-      - "5432:5432"
+      - "5433:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     environment:

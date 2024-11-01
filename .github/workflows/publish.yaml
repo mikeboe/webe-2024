@@ -1,0 +1,55 @@
+name: Publish Test App
+on:
+  push:
+    branches:
+      - main
+
+env:
+  REGISTRY: ghcr.io
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+jobs:
+  publish:
+    #    if: github.event.pull_request.merged == true
+    name: Publish Website Docker
+    runs-on: ubuntu-latest
+    permissions: write-all
+    steps:
+      - name: "Checkout"
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+
+      #   - name: 'Use NodeJS 20'
+      #     uses: actions/setup-node@v4
+      #     with:
+      #       node-version: '20'
+
+      #   - name: Run install
+      #     run: |
+      #       npm ci
+
+      - name: Log into registry ${{ env.REGISTRY }}
+        if: github.event_name != 'pull_request'
+        uses: docker/login-action@343f7c4344506bcbf9b4de18042ae17996df046d # v3.0.0
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: get time version
+        run: |
+          echo "date=$(date +'%Y-%m-%d_%H-%M')" >> $GITHUB_OUTPUT
+        id: release # this is used on variable path
+
+      - name: Publish Docker to GHCR.IO
+        run: |
+          docker build -t webe-2024 .
+          docker tag webe-2024 ${{ env.REGISTRY }}/mikeboe/webe-2024:${{ steps.release.outputs.date }}
+          docker push ${{ env.REGISTRY }}/mikeboe/webe-2024:${{ steps.release.outputs.date }}
+
+    #   - uses: actions-hub/kubectl@master
+    #     env:
+    #       KUBE_CONFIG: ${{ secrets.K8S1_KUBE_CONFIG }}
+    #     with:
+    #       args: set image deployment/blog blog=ghcr.io/mikeboe/blog:${{ steps.release.outputs.date }} -n blog

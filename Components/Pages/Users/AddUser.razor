@@ -1,0 +1,82 @@
+@page "/adduser"
+@rendermode InteractiveServer
+
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Models.Entities
+@using BlazorAppCrud.Models.ViewModels
+@using Microsoft.AspNetCore.Authorization
+@using BlazorAppCrud.Services;
+@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@inherits OwningComponentBase<UserService>
+@inject NavigationManager NavigationManager
+
+
+
+<PageTitle>Add User</PageTitle>
+<h1>Add User</h1>
+
+<p>Add a new user</p>
+
+<EditForm Model="@RegisterUserModel" OnValidSubmit="@AddNewUser" FormName="RegisterUserForm">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>User Name</label>
+        <InputText @bind-Value="RegisterUserModel.UserName" class="form-control" placeholder="Username" />
+    </div>
+    <div class="mb-3">
+        <label>Email</label>
+        <InputText @bind-Value="RegisterUserModel.Email" class="form-control" placeholder="Email" />
+    </div>
+    <div class="mb-3">
+        <label>Password</label>
+        <InputText type="password" @bind-Value="RegisterUserModel.Password" class="form-control" placeholder="Password" />
+    </div>
+    <div class="mb-3">
+        <label>Role</label>
+        <InputSelect  @bind-Value="RegisterUserModel.Role" class="form-control" placeholder="Password">
+            <option value="User" selected>User</option>
+            <option value="Admin">Admin</option>
+            </InputSelect>
+    </div>
+    <button class="btn btn-primary" type="submit" >
+        Add User
+    </button>
+</EditForm>
+
+
+
+<p>@worked</p>
+
+@code {
+    public RegisterUserModel RegisterUserModel { get; set; } = new ();
+    
+    
+    // private string userName;
+    // private string email;
+    // private string password;
+
+    private string worked;
+    
+    
+    private void AddNewUser()
+    {
+        Console.WriteLine("AddNewUser");
+        UserClass user = new UserClass();
+        
+        user.UserName = RegisterUserModel.UserName;
+        user.Email = RegisterUserModel.Email;
+        user.Password = RegisterUserModel.Password;
+        // Add user to database
+        var success = Service.InsertRecord(user);
+        if (success)
+        {
+            worked = "User added successfully";
+            NavigationManager.NavigateTo("/");
+        }
+        else
+        {
+            worked = "User not added";
+        }
+    }
+}

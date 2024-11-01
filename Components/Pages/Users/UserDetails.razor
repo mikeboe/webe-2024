@@ -2,6 +2,8 @@
 @rendermode InteractiveServer
 
 @using BlazorAppCrud.Data;
+@using BlazorAppCrud.Models.Entities
+@using BlazorAppCrud.Models.ViewModels
 @using BlazorAppCrud.Services;
 @using Microsoft.AspNetCore.Http.Extensions
 @inherits OwningComponentBase<UserService>
@@ -20,8 +22,9 @@
             </div>
         </div>
         <div class="card-body">
-            <p>User Name: @userName</p>
-            <p>Email: @email</p>
+            <p>User Name: @Model.UserName</p>
+            <p>Email: @Model.Email</p>
+            <p>Role: @Model.Role</p>
         </div>
     </div>
 }
@@ -37,11 +40,20 @@ else
         <div class="card-body">
             <div class="flex-row mb-2">
                 <div>User Name</div>
-                <input type="text" @bind-value="@userName" @bind-value:event="oninput" />
+                <input type="text" @bind-value="@Model.UserName" @bind-value:event="oninput" />
+                
             </div>
             <div class="flex-row mb-2">
                 <div>Email</div>
-                <input type="text" @bind-value="@email" @bind-value:event="oninput" />
+                <input type="text" @bind-value="@Model.Email" @bind-value:event="oninput" />
+               
+            </div>
+            <div class="flex-row mb-2">
+                <div>Role</div>
+                <select @bind-value="@Model.Role" @bind-value:event="onchange">
+                    <option value="User">User</option>
+                    <option value="Admin">Admin</option>
+                </select>
             </div>
         </div>
     </div>
@@ -51,6 +63,8 @@ else
     [Parameter]
     public string id { get; set; }
     
+    public UpdateUserModel Model { get; set; } = new();
+    
     public string userName;
     public string email;
 
@@ -59,16 +73,18 @@ else
     protected override void OnInitialized()
     {
         UserClass user = Service.GetUserById(id);
-        userName = user.userName;
-        email = user.email;
+        Model.UserName = user.UserName;
+        Model.Email = user.Email;
+        Model.Role = user.Role;
     }
 
     public void UpdateUser()
     {
         UserClass user = new UserClass();
-        user.id = id;
-        user.userName = userName;
-        user.email = email;
+        user.Id = id;
+        user.UserName = Model.UserName;
+        user.Email = Model.Email;
+        user.Role = Model.Role;
         
         var success = Service.UpdateRecord(user);
         if (success)

@@ -1,4 +1,5 @@
 using System.Configuration;
+using BlazorAppCrud.Models.Entities;
 using Microsoft.EntityFrameworkCore;
 using ConfigurationManager = Microsoft.Extensions.Configuration.ConfigurationManager;
 

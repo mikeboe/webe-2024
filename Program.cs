@@ -1,5 +1,7 @@
-using System.Configuration;
 using BlazorAppCrud.Components;
+using System.Configuration;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using BlazorAppCrud.Data;
 using Microsoft.EntityFrameworkCore;
 using BlazorAppCrud.Services;
@@ -9,24 +11,29 @@ var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddDbContext<ApplicationDbContext>(options =>
-    options.UseNpgsql(ConfigurationExtensions.GetConnectionString(builder.Configuration, "psqlConnection")));
+    options.UseNpgsql(Environment.GetEnvironmentVariable("DB_URL") ?? ConfigurationExtensions.GetConnectionString(builder.Configuration, "psqlConnection")));
+Console.WriteLine("DB_URL: " + Environment.GetEnvironmentVariable("DB_URL"));
 
 builder.Services
     .AddRazorComponents()
     .AddInteractiveServerComponents();
 
+builder.Services.AddAuthentication(CookieAuthenticationDefaults.AuthenticationScheme)
+    .AddCookie(options =>
+    {
+        options.Cookie.Name = "auth_token";
+        options.LoginPath = "/login";
+        options.Cookie.MaxAge = TimeSpan.FromMinutes(30);
+        options.AccessDeniedPath = "/access-denied";
+    });
+builder.Services.AddAuthorization();
+builder.Services.AddCascadingAuthenticationState();
+
 builder.Services.AddScoped<UserService>();
+builder.Services.AddScoped<AuthService>();
     
 
 var app = builder.Build();
-
-// using (var scope = app.Services.CreateScope())
-// {
-//     var services = scope.ServiceProvider;
-
-//     var context = services.GetRequiredService<ApplicationDbContext>();
-//     context.Database.Migrate();
-// }
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
@@ -40,6 +47,8 @@ app.UseHttpsRedirection();
 
 app.UseStaticFiles();
 app.UseAntiforgery();
+app.UseAuthentication();
+app.UseAuthorization();
 
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
