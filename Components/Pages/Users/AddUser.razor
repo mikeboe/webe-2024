@@ -34,7 +34,7 @@
     </div>
     <div class="mb-3">
         <label>Role</label>
-        <InputSelect  @bind-Value="RegisterUserModel.Role" class="form-control" placeholder="Password">
+        <InputSelect  @bind-Value="RegisterUserModel.Role" class="form-control" placeholder="Role">
             <option value="User" selected>User</option>
             <option value="Admin">Admin</option>
             </InputSelect>
@@ -67,6 +67,7 @@
         user.UserName = RegisterUserModel.UserName;
         user.Email = RegisterUserModel.Email;
         user.Password = RegisterUserModel.Password;
+        user.Role = RegisterUserModel.Role == null ? "User" : RegisterUserModel.Role;
         // Add user to database
         var success = Service.InsertRecord(user);
         if (success)
