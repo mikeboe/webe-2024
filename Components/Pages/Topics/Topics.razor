@@ -1,0 +1,55 @@
+﻿@page "/topics"
+@rendermode InteractiveServer
+@using Microsoft.AspNetCore.Authorization
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Models.Entities
+@using BlazorAppCrud.Services;
+@inherits OwningComponentBase<TopicsService>
+@inject NavigationManager NavigationManager
+@attribute [Authorize(Roles = "User,Admin")]
+
+<PageTitle>Topics</PageTitle>
+
+<h1>Topics</h1>
+
+<div style="text-align: center;">
+    <button class="btn btn-success" @onclick="@(() =>NavigationManager.NavigateTo("/topics/add"))">
+        Add a new topic
+    </button>
+    <hr />
+            <table class="table">
+                <tr>
+                    <th></th>
+                    <th>Title</th>
+                    <th>Description</th>
+                    <th>Actions</th>
+                </tr>
+                @foreach (var item in tclist)
+                {
+                <tr>
+                    <td><a href="/topics/@item.Id">View</a></td>
+                    <td>@item.Title</td>
+                    <td>@item.Description</td>
+                    
+                    <td>
+                        
+                    </td>
+                </tr>
+                }
+            </table>
+       
+       
+    
+    @code{
+       
+        [CascadingParameter]
+        private Task<AuthenticationState> authenticationState { get; set; }
+
+        IList<TopicClass> tclist;
+
+        protected override void OnInitialized()
+        {
+            tclist = Service.GetTopics();
+        }
+}
+</div>

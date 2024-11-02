@@ -1,0 +1,94 @@
+@page "/topics/{id}"
+@rendermode InteractiveServer
+
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Models.Entities
+@using BlazorAppCrud.Models.ViewModels
+@using BlazorAppCrud.Services;
+@using Microsoft.AspNetCore.Authorization
+@using Microsoft.AspNetCore.Http.Extensions
+@inherits OwningComponentBase<TopicsService>
+@inject NavigationManager NavigationManager
+@inject QuestionsService QuestionsService
+@attribute [Authorize(Roles = "User,Admin")]
+
+<PageTitle>Topic @title</PageTitle>
+<h1>Topic @title</h1>
+
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <h3>Details</h3>
+            @* <button class="btn btn-primary" @onclick="() => editing = true">Edit</button> *@
+        </div>
+    </div>
+    <div class="card-body">
+        <p>Description: @description</p>
+            
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-header">
+        <div class="d-flex justify-content-between">
+            <h3>Questions</h3>
+            <div class="d-flex">
+                <span class="text-success">@generating</span>
+                <button class="btn btn-outline-success" @onclick=@(() => GenerateQuestionsAI())>Generate with AI</button>
+                <button class="btn btn-success" @onclick=@(() => NavigationManager.NavigateTo($"/topics/{id}/tests"))>Run Test</button>
+            </div>
+        </div>
+    </div>
+    <div class="card-body">
+        @if (questionsList != null)
+        {
+            <table class="table">
+                <tr>
+                    <th>Question</th>
+                    
+                    
+                </tr>
+                @foreach (var item in questionsList)
+                {
+                    <tr>
+                        <td>@item.Question</td>
+                       
+                        
+                    </tr>
+                }
+            </table>
+        }
+    </div>
+</div>
+
+
+@code {
+    [Parameter] public string id { get; set; }
+    
+    public string title;
+    public string description;
+    public string generating;
+    
+    IList<QuestionsClass> questionsList;
+    
+    protected override void OnInitialized()
+    {
+        TopicClass topic = Service.GetTopicById(id);
+        title = topic.Title;
+        description = topic.Description;
+
+        questionsList = QuestionsService.GetQuestionsByTopicId(id);
+    }
+    
+    protected async Task GenerateQuestionsAI()
+    {
+        generating = "Generating...";
+        Console.WriteLine("GenerateQuestionsAI");
+        
+        await QuestionsService.GenerateQuestions(id);
+        generating = "Generated!";
+        questionsList = QuestionsService.GetQuestionsByTopicId(id);
+        
+    }
+}

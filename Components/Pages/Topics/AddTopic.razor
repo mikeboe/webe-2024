@@ -1,0 +1,71 @@
+@page "/topics/add"
+@rendermode InteractiveServer
+
+@using BlazorAppCrud.Data;
+@using BlazorAppCrud.Models.Entities
+@using BlazorAppCrud.Models.ViewModels
+@using Microsoft.AspNetCore.Authorization
+@using BlazorAppCrud.Services;
+@using Microsoft.AspNetCore.Http.Extensions
+@using Microsoft.EntityFrameworkCore.Metadata.Internal
+@inherits OwningComponentBase<TopicsService>
+@inject NavigationManager NavigationManager
+
+
+
+<PageTitle>Add Topic</PageTitle>
+<h1>Add Topic</h1>
+
+<p>Add a new topic</p>
+
+<EditForm Model="@Model" OnValidSubmit="@AddNewTopic" FormName="AddTopicForm">
+    <DataAnnotationsValidator />
+    <div class="mb-3">
+        <label>Title</label>
+        <InputText @bind-Value="Model.Title" class="form-control" placeholder="Title" />
+    </div>
+    <div class="mb-3">
+        <label>Description</label>
+        <InputText @bind-Value="Model.Description" class="form-control" placeholder="Description" />
+    </div>
+    
+    <button class="btn btn-primary" type="submit" >
+        Add Topic
+    </button>
+</EditForm>
+
+
+
+<p>@worked</p>
+
+@code {
+    public AddTopicModel Model { get; set; } = new ();
+    
+    
+    // private string userName;
+    // private string email;
+    // private string password;
+
+    private string worked;
+    
+    
+    private void AddNewTopic()
+    {
+        Console.WriteLine("AddNewTopic");
+        TopicClass topic = new TopicClass();
+        
+        topic.Title = Model.Title;
+        topic.Description = Model.Description;
+        // Add topic to database
+        var insertedId = Service.InsertRecord(topic);
+        if (insertedId != null)
+        {
+            worked = "Topic added successfully";
+            NavigationManager.NavigateTo("/topics/" + insertedId);
+        }
+        else
+        {
+            worked = "Topic not added";
+        }
+    }
+}

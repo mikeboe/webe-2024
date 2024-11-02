@@ -31,6 +31,9 @@ builder.Services.AddCascadingAuthenticationState();
 
 builder.Services.AddScoped<UserService>();
 builder.Services.AddScoped<AuthService>();
+builder.Services.AddScoped<TopicsService>();
+builder.Services.AddScoped<QuestionsService>();
+builder.Services.AddScoped<AnswersService>();
     
 
 var app = builder.Build();

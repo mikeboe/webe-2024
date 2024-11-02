@@ -1,0 +1,62 @@
+@using BlazorAppCrud.Services;
+@using BlazorAppCrud.Models.Entities;
+
+<div class="card mb-3">
+    <div class="card-header">
+        <h3>@Question.Question</h3>
+    </div>
+    <div class="card-body">
+        <div class="form-group">
+            @foreach (var answer in Question.Answers)
+            {
+            <div class="form-check">
+                <input type="radio" class="form-check-input" id="@answer.Id" name="answer"  value="@answer.Id" @onchange="@(() => selectedAnswerId = answer.Id)">
+                <label class="form-check-label" for="@answer.Id">
+                    @answer.Answer
+                </label>
+            </div>
+            }
+        </div>
+
+        <button class="btn btn-primary" @onclick="CheckAnswer">Check Answer</button>
+
+        @if (showResult)
+        {
+        <div class="mt-2">
+            @if (isCorrect)
+            {
+            <p class="text-success">Correct!</p>
+            }
+            else
+            {
+            <p class="text-danger">Incorrect. The correct answer is: @(Question.Answers.FirstOrDefault(a => a.IsCorrect)?.Answer ?? "N/A")</p>
+            }
+        </div>
+        }
+    </div>
+</div>
+
+@code {
+    [Parameter]
+    public QuestionsClass Question { get; set; }
+    
+    private string selectedAnswerId;
+    private bool showResult = false;
+    private bool isCorrect = false;
+    
+    private void SelectAnswer(string answerId)
+    {
+        selectedAnswerId = answerId;
+    }
+
+    private void CheckAnswer()
+    {
+        showResult = true;
+        Console.WriteLine(selectedAnswerId);
+        
+        var result = selectedAnswerId == Question.Answers.FirstOrDefault(a => a.IsCorrect)?.Id;
+        Console.WriteLine(result);
+        
+        isCorrect = result;
+    }
+}
