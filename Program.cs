@@ -5,6 +5,7 @@ using Microsoft.AspNetCore.Authentication.Cookies;
 using BlazorAppCrud.Data;
 using Microsoft.EntityFrameworkCore;
 using BlazorAppCrud.Services;
+using Blazored.Toast;
 using Microsoft.EntityFrameworkCore.Design;
 
 var builder = WebApplication.CreateBuilder(args);

@@ -8,6 +8,7 @@
     </PropertyGroup>
 
     <ItemGroup>
+      <PackageReference Include="Blazored.Toast" Version="4.2.1" />
       <PackageReference Include="EntityFramework6.Npgsql" Version="6.4.3" />
       <PackageReference Include="Isopoh.Cryptography.Argon2" Version="2.0.0" />
       <PackageReference Include="Microsoft.EntityFrameworkCore" Version="9.0.0-rc.2.24474.1" />

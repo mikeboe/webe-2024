@@ -16,7 +16,7 @@
 <h1>Topic @title</h1>
 
 
-<div class="card">
+<div class="card mb-3">
     <div class="card-header">
         <div class="d-flex justify-content-between">
             <h3>Details</h3>
@@ -34,8 +34,18 @@
         <div class="d-flex justify-content-between">
             <h3>Questions</h3>
             <div class="d-flex">
-                <span class="text-success">@generating</span>
-                <button class="btn btn-outline-success" @onclick=@(() => GenerateQuestionsAI())>Generate with AI</button>
+                @if (loading)
+                {
+                    <div class="spinner-border" role="status">
+                        <span class="visually-hidden">Loading...</span>
+                    </div>
+                }
+                @if (message != null)
+                {
+                    <span class="text-success">@message</span>
+                }
+                @* <button class="btn btn-outline-success" @onclick="() => loading = true">Generate with AI</button> *@
+                <button class="btn btn-outline-success" @onclick="() => GenerateQuestionsAi()">Generate with AI</button>
                 <button class="btn btn-success" @onclick=@(() => NavigationManager.NavigateTo($"/topics/{id}/tests"))>Run Test</button>
             </div>
         </div>
@@ -68,7 +78,8 @@
     
     public string title;
     public string description;
-    public string generating;
+    public bool loading = false;
+    public string message;
     
     IList<QuestionsClass> questionsList;
     
@@ -81,14 +92,30 @@
         questionsList = QuestionsService.GetQuestionsByTopicId(id);
     }
     
-    protected async Task GenerateQuestionsAI()
+    protected async Task GenerateQuestionsAi()
     {
-        generating = "Generating...";
+        loading = true; // Set loading to true
+        StateHasChanged(); // Force UI update
+        await Task.Delay(1); // Wait for UI to update
+
         Console.WriteLine("GenerateQuestionsAI");
-        
-        await QuestionsService.GenerateQuestions(id);
-        generating = "Generated!";
-        questionsList = QuestionsService.GetQuestionsByTopicId(id);
-        
+        try
+        {
+            await QuestionsService.GenerateQuestions(id);
+            message = "Questions generated successfully!";
+        }
+        catch (Exception e)
+        {
+            Console.WriteLine(e.Message);
+        }
+        finally
+        {
+            loading = false; // Set loading to false
+            questionsList = QuestionsService.GetQuestionsByTopicId(id);
+            StateHasChanged(); // Force UI update
+            await Task.Delay(1000); // Wait for UI to update
+            
+            message = null;
+        }
     }
 }

@@ -79,7 +79,7 @@ public class QuestionsService
     var topic = _dbcontext.Topics.FirstOrDefault(u => u.Id == topicId);
 
     // create question
-    ChatClient chatClient = new ChatClient("gpt-3.5-turbo", apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY") );
+    ChatClient chatClient = new ChatClient("gpt-4o", apiKey: Environment.GetEnvironmentVariable("OPENAI_API_KEY") );
 
     var prompt = "Don't use any formatting, just seind plain json. NO MARKDOWN. Generate a JSON array of 5 quiz questions, each with a question string and 4 answers in an array. Each answer should be an object with the answer string and a boolean \"is_correct\" field. Only one answer should be correct per question. The questions should be about the topic:" + topic.Title + ", with the description: " + topic.Description;
 

@@ -14,71 +14,80 @@
 
 <h1>Test</h1>
 
+@* <p>Questions: @QuestionsCount</p> *@
+<p>Correct: @CorrectAnswersCount</p>
+<p>Wrong: @WrongAnswersCount</p>
+
 <div class="gap-y-2">
-    @foreach(var item in qclist)
+    <div class="progress" role="progressbar" aria-label="Basic example" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+        <div class="progress-bar" style="width: @progress%"></div>
+    </div>
+    <div class="mb-2" />
+    @* @foreach (var item in qclist) *@
+    @* { *@
+    @*     <QuestionCard *@
+    @*         Question="@item" *@
+    @*         @bind-CorrectAnswersCount="CorrectAnswersCount" *@
+    @*         @bind-WrongAnswersCount="WrongAnswersCount" /> *@
+    @* } *@
+    <QuestionCard
+        @key="currentQuestionIndex"
+        Question="@qclist[currentQuestionIndex]"
+        @bind-CorrectAnswersCount="CorrectAnswersCount"
+        @bind-WrongAnswersCount="WrongAnswersCount"/>
+    <div class="mt-4"/>
+    @if (currentQuestionIndex == QuestionsCount - 1)
     {
-        <QuestionCard Question="@item" />
-        @* <div class="card mb-3"> *@
-        @*     <div class="card-header"> *@
-        @*         <h3>@item.Question</h3> *@
-        @*     </div> *@
-        @*     <div class="card-body"> *@
-        @*         <div class="form-group"> *@
-        @*             @foreach (var answer in item.Answers) *@
-        @*             { *@
-        @*             <div class="form-check"> *@
-        @*                 <input type="radio" class="form-check-input" id="@answer.Id" name="answer"  @bind-value="@selectedAnswerId"> *@
-        @*                 <label class="form-check-label" for="@answer.Id"> *@
-        @*                     @answer.Answer *@
-        @*                 </label> *@
-        @*             </div> *@
-        @*             } *@
-        @*         </div> *@
-        @* *@
-        @*         <button class="btn btn-primary" @onclick="CheckAnswer">Check Answer</button> *@
-        @* *@
-        @*         @if (showResult) *@
-        @*         { *@
-        @*         <div class="mt-2"> *@
-        @*             @if (isCorrect) *@
-        @*             { *@
-        @*             <p class="text-success">Correct!</p> *@
-        @*             } *@
-        @*             else *@
-        @*             { *@
-        @*             <p class="text-danger">Incorrect. The correct answer is: @(item.Answers.FirstOrDefault(a => a.IsCorrect)?.Answer ?? "N/A")</p> *@
-        @*             } *@
-        @*         </div> *@
-        @*         } *@
-        @*     </div> *@
-        @* </div> *@
+        <button class="btn primary">Finish Test</button>
     }
+    else
+    {
+        <button class="btn btn-primary" @onclick="nextQuestion">Next Question</button>
+    }
+    @* <button class="btn primary" @onclick="nextQuestion">Next Question</button> *@
 </div>
 
-<div style="text-align: center;">
-   
+@code {
+    [Parameter] public string id { get; set; }
+
+    public int QuestionsCount;
+    public int CorrectAnswersCount;
+    public int WrongAnswersCount;
+
+    public int progress = 0;
+
+    public int currentQuestionIndex;
+
+    [CascadingParameter] private Task<AuthenticationState> authenticationState { get; set; }
+
+    IList<QuestionsClass> qclist;
     
-    @code{
-        [Parameter] public string id { get; set; }
-       
-        [CascadingParameter]
-        private Task<AuthenticationState> authenticationState { get; set; }
+    protected override void OnInitialized()
+    {
+        qclist = Service.GetTestQuestionsByTopicId(id, 5);
+        QuestionsCount = qclist.Count;
+        progress = (currentQuestionIndex + 1) * 100 / QuestionsCount;
+    }
 
-        IList<QuestionsClass> qclist;
-        
-        private string selectedAnswerId;
-        private bool showResult = false;
-        private bool isCorrect = false;
-
-        private void CheckAnswer()
+    private void nextQuestion()
+    {
+        if (currentQuestionIndex < QuestionsCount - 1 && currentQuestionIndex + 1 < QuestionsCount)
         {
-            showResult = true;
-            // isCorrect = selectedAnswerId == item.Answers.FirstOrDefault(a => a.IsCorrect)?.Id;
+            currentQuestionIndex++;
+            progress = (currentQuestionIndex + 1) * 100 / QuestionsCount;
         }
+    }
 
-        protected override void OnInitialized()
+    private void HandleAnswerChecked(bool isCorrect)
+    {
+        if (isCorrect)
         {
-            qclist = Service.GetTestQuestionsByTopicId(id, 5);
+            CorrectAnswersCount++;
         }
+        else
+        {
+            WrongAnswersCount++;
+        }
+    }
+
 }
-</div>

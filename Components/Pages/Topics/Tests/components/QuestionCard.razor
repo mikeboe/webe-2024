@@ -40,7 +40,20 @@
     [Parameter]
     public QuestionsClass Question { get; set; }
     
-    private string selectedAnswerId;
+    [Parameter]
+    public int CorrectAnswersCount { get; set; }
+
+    [Parameter]
+    public EventCallback<int> CorrectAnswersCountChanged { get; set; }
+    
+    [Parameter]
+    public int WrongAnswersCount { get; set; }
+
+    [Parameter]
+    public EventCallback<int> WrongAnswersCountChanged { get; set; }
+
+    
+    private string selectedAnswerId = null;
     private bool showResult = false;
     private bool isCorrect = false;
     
@@ -49,13 +62,24 @@
         selectedAnswerId = answerId;
     }
 
-    private void CheckAnswer()
+    private async Task CheckAnswer()
     {
         showResult = true;
         Console.WriteLine(selectedAnswerId);
         
         var result = selectedAnswerId == Question.Answers.FirstOrDefault(a => a.IsCorrect)?.Id;
         Console.WriteLine(result);
+        
+        if (result)
+        {
+            CorrectAnswersCount++;
+            await CorrectAnswersCountChanged.InvokeAsync(CorrectAnswersCount);
+        }
+        else
+        {
+            WrongAnswersCount++;
+            await WrongAnswersCountChanged.InvokeAsync(WrongAnswersCount);
+        }
         
         isCorrect = result;
     }
